@@ -10,6 +10,9 @@ ENV STREAMLIT_SERVER_PORT=8501
 # Set the working directory
 WORKDIR /app
 
+# After the WORKDIR instruction, add:
+RUN mkdir -p /app/cache && chmod 777 /app/cache
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \

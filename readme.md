@@ -14,6 +14,7 @@ I used the prompt - " A Ghost Town in the style of a Wes Anderson movie"
 - [Parameter Guide](#parameter-guide)
   - [Inference Steps](#1-inference-steps-num_inference_steps)
   - [Guidance Scale](#2-guidance-scale-guidance_scale)
+- [Authentication Setup](#authentication-setup)
 - [Installation Guide](#installation-guide)
   - [Local Installation](#local-installation)
   - [Docker Installation](#docker-installation)
@@ -27,7 +28,10 @@ I used the prompt - " A Ghost Town in the style of a Wes Anderson movie"
 
 This application is a Streamlit-based web interface that leverages the Stable Diffusion 3.5 Medium model to generate high-quality images from text descriptions. It features an intuitive user interface with customizable generation parameters and optimized performance through CUDA acceleration and model quantization.
 
-⚠️ **Important**: This application requires an NVIDIA GPU with CUDA support. CPU-only execution is not recommended due to significantly slower performance.
+⚠️ **Important**: This application requires:
+- An NVIDIA GPU with CUDA support (CPU-only execution is not recommended due to significantly slower performance)
+- Access to Stable Diffusion 3.5 Medium model (requires approval from Hugging Face)
+- Valid Hugging Face authentication token
 
 ## Use Cases
 
@@ -92,6 +96,7 @@ The application requires the following key packages:
 - `transformers`: For model handling
 - `accelerate`: For optimization
 - `safetensors`: For model weight handling
+- `huggingface-hub`: For model access and authentication
 
 ### System Requirements
 
@@ -99,6 +104,8 @@ The application requires the following key packages:
 - Python 3.8 or higher
 - Minimum 8GB RAM (16GB recommended)
 - 2GB free disk space for model storage
+- Active internet connection for model download
+- Hugging Face account with model access
 
 ## Parameter Guide
 
@@ -114,7 +121,7 @@ The inference steps parameter controls the denoising process during image genera
   - Medium steps (20-40): Good balance of speed and quality
   - Higher steps (40-50): Highest quality but diminishing returns
 
-![Inference Steps Effect ](docs/assets/inference-steps.jpg)
+![Inference Steps Effect](docs/assets/inference-steps.jpg)
 
 #### Recommended Settings:
 - Quick drafts: 20 steps
@@ -139,6 +146,27 @@ The guidance scale determines how closely the generated image follows the input 
 - Abstract concepts: 3.0-4.0
 - General use: 4.5-7.0
 - Precise generations: 7.0-8.0
+
+## Authentication Setup
+
+Before installation, you need to set up authentication with Hugging Face:
+
+1. Request access to Stable Diffusion 3.5 Medium:
+   - Visit [Stable Diffusion 3.5 Medium](https://huggingface.co/stabilityai/stable-diffusion-3-medium)
+   - Click "Access Request" button
+   - Wait for approval email
+
+2. Create a Hugging Face token:
+   - Go to [Hugging Face Settings](https://huggingface.co/settings/tokens)
+   - Click "New token"
+   - Select "read" access
+   - Copy the generated token
+
+3. Login with your token:
+   ```bash
+   huggingface-cli login
+   # Paste your token when prompted
+   ```
 
 ## Installation Guide
 
@@ -185,10 +213,20 @@ The guidance scale determines how closely the generated image follows the input 
 2. Run the container:
    ```bash
    # Windows (PowerShell)
-   docker run -d --gpus all -v "${env:USERPROFILE}\.cache\huggingface:/app/cache" -p 8501:8501 image_gen_app
+   docker run -d --gpus all `
+     -v "${env:USERPROFILE}\.cache\huggingface:/app/cache:rw" `
+     -v "${env:USERPROFILE}\.huggingface:/root/.huggingface:rw" `
+     -p 8501:8501 `
+     --user "$(id -u):$(id -g)" `
+     image_gen_app
 
    # Linux/MacOS
-   docker run -d --gpus all -v ~/.cache/huggingface:/app/cache -p 8501:8501 image_gen_app
+   docker run -d --gpus all \
+     -v ~/.cache/huggingface:/app/cache:rw \
+     -v ~/.huggingface:/root/.huggingface:rw \
+     -p 8501:8501 \
+     --user "$(id -u):$(id -g)" \
+     image_gen_app
    ```
 
 ## Usage Guide
@@ -209,11 +247,14 @@ The application includes comprehensive error handling:
 - CUDA availability checking
 - Model loading verification
 - Generation process monitoring
+- Authentication verification
 
 Common error messages and solutions:
 - CUDA not available: Check GPU drivers and CUDA installation
 - Memory errors: Reduce batch size or model precision
 - Loading errors: Check internet connection and model cache
+- Authentication errors: Verify token validity and model access
+- Permission errors: Check file system permissions for cache directories
 
 ## Performance Optimization
 
@@ -222,6 +263,7 @@ The application implements several optimization techniques:
 - CPU offloading for memory management
 - CUDA synchronization for GPU operations
 - Garbage collection during initialization
+- Efficient token caching
 
 ## Contributing
 
