@@ -2,6 +2,8 @@
 
 <img src="docs/assets/app_with_output.gif" width="800">
 
+I used the prompt - " A Ghost Town in the style of a Wes Anderson movie"
+
 ## Table of Contents
 - [Project Description](#project-description)
 - [Use Cases](#use-cases)
