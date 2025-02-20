@@ -1,6 +1,6 @@
 # Image Generation App with Stable Diffusion 3.5 Medium
 
-![Image Generated in App](docs/assets/app_with_output.gif)
+<img src="docs/assets/app_with_output.gif" width="800">
 
 ## Table of Contents
 - [Project Description](#project-description)
